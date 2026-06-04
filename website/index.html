@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Search Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .search-section {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        #searchInput {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        #searchInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        #searchBtn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        #searchBtn:hover {
+            transform: translateY(-2px);
+        }
+        
+        #searchBtn:active {
+            transform: translateY(0);
+        }
+        
+        .results-section {
+            padding: 30px;
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .result-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .result-item h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+            font-size: 1.2em;
+        }
+        
+        .result-item p {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .result-link {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .result-link:hover {
+            text-decoration: underline;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .search-info {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .detail-view {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .detail-view.show {
+            display: flex;
+        }
+        
+        .detail-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .detail-close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            cursor: pointer;
+            margin-top: -10px;
+        }
+        
+        .detail-close:hover {
+            color: #764ba2;
+        }
+        
+        .detail-content h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            margin-top: 20px;
+        }
+        
+        .detail-content p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .back-btn:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔍 Demo Search Website</h1>
+            <p>Tìm kiếm bài viết, sản phẩm và tài liệu</p>
+        </header>
+        
+        <div class="search-section">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Nhập từ khóa tìm kiếm..." 
+                    onkeypress="if(event.key === 'Enter') search()"
+                >
+                <button id="searchBtn" onclick="search()">Tìm kiếm</button>
+            </div>
+            <div class="search-info">
+                <strong>💡 Mẹo:</strong> Thử tìm kiếm: "Python", "JavaScript", "Web Development", "API", "Database"
+            </div>
+        </div>
+        
+        <div class="results-section">
+            <div id="resultsContainer"></div>
+        </div>
+    </div>
+    
+    <div class="detail-view" id="detailView">
+        <div class="detail-content">
+            <span class="detail-close" onclick="closeDetail()">&times;</span>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+    
+    <script>
+        const mockData = {
+            'python': [
+                {
+                    title: 'Python Basics - Hướng dẫn toàn diện',
+                    description: 'Tìm hiểu những kiến thức cơ bản về Python bao gồm biến, kiểu dữ liệu, vòng lặp và hàm.',
+                    link: '#python-basics',
+                    content: 'Python là một ngôn ngữ lập trình mạnh mẽ, dễ học và linh hoạt. Nó được sử dụng rộng rãi trong web development, data science, AI, và nhiều lĩnh vực khác.\n\nCác kiến thức cơ bản bao gồm:\n- Variables và Data Types\n- Control Flow (if/else, loops)\n- Functions\n- Lists, Dictionaries, Sets\n- File Handling\n- Exception Handling'
+                },
+                {
+                    title: 'Advanced Python Techniques',
+                    description: 'Khám phá các kỹ thuật nâng cao trong Python như decorators, generators, context managers.',
+                    link: '#python-advanced',
+                    content: 'Nâng cao kỹ năng Python của bạn với:\n- Decorators: Sử dụng để modify hoặc enhance functions\n- Generators: Tạo iterators hiệu quả\n- Context Managers: Quản lý tài nguyên an toàn\n- Metaclasses: Kiểm soát việc tạo classes\n- Async/Await: Lập trình asynchronous'
+                },
+                {
+                    title: 'Python Web Development with Django',
+                    description: 'Xây dựng ứng dụng web mạnh mẽ sử dụng Django framework.',
+                    link: '#django',
+                    content: 'Django là một full-featured web framework cho Python.\n\nNhiều tính năng:\n- ORM (Object-Relational Mapping)\n- Admin Panel tích hợp\n- Authentication & Authorization\n- URL Routing\n- Template Engine\n- Form Handling'
+                }
+            ],
+            'javascript': [
+                {
+                    title: 'JavaScript ES6+ Features',
+                    description: 'Khám phá các tính năng hiện đại của JavaScript từ ES6 trở đi.',
+                    link: '#js-es6',
+                    content: 'ES6 và các phiên bản sau mang đến nhiều tính năng mới:\n- Arrow Functions\n- Template Literals\n- Destructuring\n- Spread Operator\n- Classes\n- Modules (import/export)\n- Promises và Async/Await'
+                },
+                {
+                    title: 'React.js - Frontend Framework',
+                    description: 'Xây dựng giao diện người dùng interactivo với React.',
+                    link: '#react',
+                    content: 'React là thư viện JavaScript để xây dựng giao diện:\n- Components (Functional & Class)\n- JSX Syntax\n- State & Props\n- Hooks (useState, useEffect, etc.)\n- Virtual DOM\n- Lifecycle Methods'
+                }
+            ],
+            'web development': [
+                {
+                    title: 'Full Stack Web Development',
+                    description: 'Hướng dẫn hoàn chỉnh để trở thành Full Stack Developer.',
+                    link: '#fullstack',
+                    content: 'Full Stack Development bao gồm:\n\nFrontend:\n- HTML, CSS, JavaScript\n- React, Vue, Angular\n- Responsive Design\n\nBackend:\n- Server-side languages (Python, Node.js, PHP)\n- Databases (SQL, NoSQL)\n- APIs & RESTful services\n\nTools:\n- Git & Version Control\n- Docker & Containerization\n- CI/CD Pipelines'
+                }
+            ],
+            'api': [
+                {
+                    title: 'RESTful API Design',
+                    description: 'Thiết kế và xây dựng APIs theo tiêu chuẩn REST.',
+                    link: '#rest-api',
+                    content: 'RESTful APIs là kiến trúc phổ biến:\n\nCác nguyên tắc:\n- Client-Server Architecture\n- Statelessness\n- Uniform Interface\n- Cacheability\n\nHTTP Methods:\n- GET: Retrieve data\n- POST: Create data\n- PUT: Update data\n- DELETE: Delete data\n\nBest Practices:\n- Versioning\n- Error Handling\n- Documentation'
+                }
+            ],
+            'database': [
+                {
+                    title: 'SQL Databases - MySQL & PostgreSQL',
+                    description: 'Quản lý dữ liệu hiệu quả với SQL databases.',
+                    link: '#sql',
+                    content: 'SQL Databases là cơ sở dữ liệu quan hệ:\n\nCác khái niệm chính:\n- Tables & Schemas\n- CRUD Operations\n- Joins & Relationships\n- Indexes & Performance\n- Transactions\n\nMySQL vs PostgreSQL:\n- Cả hai đều mạnh mẽ\n- PostgreSQL có tính năng nâng cao hơn\n- MySQL đơn giản, phổ biến hơn'
+                }
+            ]
+        };
+        
+        function search() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const container = document.getElementById('resultsContainer');
+            
+            if (!query) {
+                container.innerHTML = '<div class="no-results">Vui lòng nhập từ khóa tìm kiếm</div>';
+                return;
+            }
+            
+            let results = [];
+            
+            for (const [key, items] of Object.entries(mockData)) {
+                if (key.includes(query)) {
+                    results.push(...items);
+                } else {
+                    items.forEach(item => {
+                        if (item.title.toLowerCase().includes(query) || 
+                            item.description.toLowerCase().includes(query)) {
+                            results.push(item);
+                        }
+                    });
+                }
+            }
+            
+            if (results.length === 0) {
+                container.innerHTML = `<div class="no-results">Không tìm thấy kết quả cho: "${query}"</div>`;
+            } else {
+                container.innerHTML = results.map((item, index) => `
+                    <div class="result-item" onclick="showDetail('${item.title.replace(/'/g, "\\'")}', '${item.content.replace(/'/g, "\\'")}')">
+                        <h3>${index + 1}. ${item.title}</h3>
+                        <p>${item.description}</p>
+                        <a class="result-link" href="javascript:void(0)">Xem chi tiết →</a>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function showDetail(title, content) {
+            document.getElementById('detailContent').innerHTML = `
+                <h2>${title}</h2>
+                <p>${content.replace(/\n/g, '</p><p>')}</p>
+                <button class="back-btn" onclick="closeDetail()">← Quay lại</button>
+            `;
+            document.getElementById('detailView').classList.add('show');
+        }
+        
+        function closeDetail() {
+            document.getElementById('detailView').classList.remove('show');
+        }
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeDetail();
+            }
+        });
+        
+        // Load trang lần đầu
+        window.onload = function() {
+            document.getElementById('resultsContainer').innerHTML = 
+                '<div class="no-results">👆 Nhập từ khóa và nhấn tìm kiếm để bắt đầu</div>';
+        };
+    </script>
+</body>
+</html>
